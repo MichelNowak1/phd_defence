@@ -1,0 +1,1601 @@
+<!doctype html>
+<html>
+    <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+    </script>
+    <script src="node_modules/three.js/node_modules/three/three.js"></script>
+    <script src="node_modules/three.js/node_modules/three/examples/js/renderers/Projector.js"></script>
+    <script src="node_modules/three.js/node_modules/three/examples/js/renderers/CanvasRenderer.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/mathjs/3.8.0/math.js"></script>
+    <script src=//cdnjs.cloudflare.com/ajax/libs/tween.js/16.6.0/Tween.js> </script>
+    <script src=//cdnjs.cloudflare.com/ajax/libs/stats.js/r16/Stats.js></script>
+    <script src=//cdnjs.cloudflare.com/ajax/libs/d3/4.7.4/d3.js></script>
+    <script src="node_modules/fileapi/dist/FileAPI.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js" type="text/javascript"></script>
+    <script src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"> </script>
+
+    <link href="https://afeld.github.io/emoji-css/emoji.css" rel="stylesheet">
+
+
+
+	<head>
+		<meta charset="utf-8">
+                <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">-->
+
+		<title>reveal.js</title>
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/white.css">
+
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+                <style>
+.reveal p{
+    font-size: 0.8em;
+}
+
+                </style>
+                <script>
+var link = document.createElement( 'link' );
+link.rel = 'stylesheet';
+link.type = 'text/css';
+link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+document.getElementsByTagName( 'head' )[0].appendChild( link );
+                </script>
+	</head>
+        <body>
+            <div class="reveal">
+
+
+                 <div class="slides">
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=20%; ">
+                             <div class="logoheaderleft">
+                                 <img style 'border:0;' src="/figures/logo_cea_2012_pleinetaille.png">
+                             </div>
+                             <div class="logoheaderleftright">
+                                 <img style 'border:none;outline:none;' src="/figures/logo_paris_saclay.svg">
+                             </div>
+                             <div class="logoheaderright">
+                                 <img style 'border:0;' src="/figures/logo_paris_dauphine.svg">
+                             </div>
+                             <div class="logoheaderrightleft">
+                                 <img style 'border:none;outline:none;' src="/figures/IRSN-logo.png" width=10%;>
+                             </div>
+                         </div>
+                         <div style="display:block;position:fixed;top:25%; ">
+                             <h4> Accélération de simulations Monte Carlo de transport de particules par génération adaptative de cartes d'importance</h4><br>
+                             <h4> Michel Nowak </h4>
+                             <h8>CEA/DEN/DANS/DM2S/SERMA/LTSD<br><h8>
+                             <div style="text-align:left;position:fixed;left:30%;">
+                                 <h8>
+                                 Directeur: <b>Eric Dumonteil </b>(IRSN) <br>
+                                 Directeur: <b>Jamal Atif </b>(Université Paris Dauphine) <br>
+                                 Encadrant: <b>Davide Mancusi </b>(CEA Saclay)
+                                 </h8>
+                             </div>
+                         </div>
+                     </section>
+                     <!-- radioprotection-->
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=20%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                     src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                             <h5>Plan </h5>
+                                 </div>
+                             </div>
+
+                         </div>
+                         <div style='text-align:left;'>
+                             <h8> 1. Contexte et justification de l'étude<br></h8>
+                             <h8 class="fragment"> 2. Solveur déterministe<br></h8>
+                             <h8 class="fragment"> 3. Score adjoint Monte Carlo<br></h8>
+                             <h8 class="fragment"> 4. Accélération avec 3 stratégies<br></h8>
+                             <h8 class="fragment"> 5. Smoothing<br></h8>
+                             <h8 class="fragment"> 6. Conclusion </h8>
+                         </div>
+                     </section>
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=20%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                     src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                             <h5>Plan </h5>
+                                 </div>
+                             </div>
+
+                         </div>
+                         <div style='text-align:left;'>
+                             <h8> 1. Contexte et justification de l'étude<br></h8>
+                             <h8 style="color:lightgrey;"> 2. Solveur déterministe<br></h8>
+                             <h8 style="color:lightgrey;" > 3. Score adjoint Monte Carlo<br></h8>
+                             <h8 style="color:lightgrey;" > 4. Accélération avec 3 stratégies<br></h8>
+                             <h8 style="color:lightgrey;" > 5. Smoothing<br></h8>
+                             <h8 style="color:lightgrey;" > 6. Conclusion </h8>
+                         </div>
+                     </section>
+                     <!-- radioprotection-->
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=20%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                     src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                             <h5>Pourquoi de la radioprotection ? </h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div class="row">
+                             <div class="fragment step-fade-in" style="display:block;position:fixed;top:22%;left:0%;width:32%;float:left">
+                                 <h8> structures</h8>
+                                 <img style='width="100%" ' src="/figures/cuve.png">
+                             </div>
+
+                             <div class="fragment step-fade-in" style="display:block;position:fixed;top:22%;left:33%;width:32%;float:left">
+                                 <h8>opérateurs</h8>
+                                 <img style="width:77%;" class="" src="/figures/mcmaster.png" >
+                             </div>
+
+                             <div class="fragment step-fade-in" style="display:block;position:fixed;top:22%;left:66%;width:32%;float:right">
+                                 <h8>patients</h8>
+                                 <img style="width:100%;" class="" src="/figures/medical.png" >
+                             </div>
+                         </div>
+                     </section>
+
+                     <!-- Modelisation-->
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=20%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                     src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> Modélisation et simulation</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div class="" style:"display;block;position: fixed; top: 25%;left:2%;text-align:left;">
+                             <p> <font size="4">$\displaystyle \left(\mathbf{\Omega}\cdot{\nabla}+\Sigma\right)\phi(\mathbf{r},E,\mathbf{\Omega})=
+                                 \int{\Sigma_s(E', \mathbf{\Omega'} \to E, \mathbf{\Omega})\phi(\mathbf{r},E',\mathbf{\Omega'}) d^2\mathbf{\Omega'}dE' } +S(\mathbf{r},E,\mathbf{\Omega})$ </font></p>
+                         </div>
+                         <div class="row"  >
+                             <div class="column ">
+                                 <h8 class="fragment" data-fragment-index="1"> méthodes déterministes </h8>
+                                 <img class="fragment" data-fragment-index="1" style='width="100%" ' src="/figures/deter.png" width="71%">
+                                 <!--<img class="fragment " data-fragment-index="0" style='width=100%;filter: grayscale(100%);" ' src="/figures/deter.png">-->
+                             </div>
+                             <div class="column ">
+                                 <h8 class="fragment" data-fragment-index="2"> méthodes Monte Carlo<h8>
+                                 <img class="fragment" data-fragment-index="2" style='width="100%" ' src="/figures/mc.png" width="60%">
+                             </div>
+                         </div>
+                     </section>
+                     <!-- Principe Monte Carlo -->
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=20%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> La méthode Monte Carlo</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <!--Montrer oeuil qui regarde trajectoires-->
+                         <!--Montrer score-->
+                         <!--</p>-->
+                         <!--<p>-->
+                         <!--Alors comment on simule ces trajectoires?-->
+                         <!--</p>-->
+                         <div class="row">
+                             <div class="column">
+                                 <img style='position:fixed;top:15%;left:15%;width:100%" ' src="/figures/mc_0.svg"    width="55%">
+                                 <img style='position:fixed;top:15%;left:15%;width:100%" ' src="/figures/mc_1.svg"    width="55%" class='fragment fragment-index="1"' >
+                                 <img style='position:fixed;top:15%;left:15%;width:100%" ' src="/figures/mc_2.svg"    width="55%" class='fragment fragment-index="2"' >
+                                 <img style='position:fixed;top:15%;left:15%;width:100%" ' src="/figures/mc_3.svg"    width="55%" class='fragment fragment-index="3"' >
+                                 <img style='position:fixed;top:15%;left:15%;width:100%" ' src="/figures/mc_4.svg"    width="55%" class='fragment fragment-index="4"' >
+                                 <img style='position:fixed;top:15%;left:15%;width:100%" ' src="/figures/mc_4bis.svg" width="55%" class='fragment fragment-index="5"' >
+                                 <img style='position:fixed;top:15%;left:15%;width:100%" ' src="/figures/mc_5.svg"    width="55%" class='fragment fragment-index="6"' >
+                                 <img style='position:fixed;top:15%;left:15%;width:100%" ' src="/figures/mc_6.svg"    width="55%" class='fragment fragment-index="7"' >
+                                 <img style='position:fixed;top:15%;left:15%;width:100%" ' src="/figures/mc_7.svg"    width="55%" class='fragment fragment-index="8"' >
+                             </div>
+                                 <!--<h9 class="fragment"> observable: $\varphi$ <br></h9>-->
+                                 <!--<h9 class="fragment"> $$ r=\int{\varphi(p)dp}$$ <br></h9>-->
+                                 <!--<h9 class="fragment"> $T$ ensemble de $N$ trajectoires <br></h9>-->
+                                 <!--<h9 class="fragment"> estimateur: $\hat{\varphi}$ <br></h9>-->
+                                 <!--<h9 class="fragment"> $$ {<}r{>}=\frac{1}{N}\sum_{\mathcal{T}\in T}{\hat{\varphi}(\mathcal{T})} $$ </h9>-->
+                                 <!--<h9 class="fragment"> $$\sigma^2=\frac{1}{N-1}\sum\limits_{\mathcal{T}\in T}{\left(\hat{\varphi}(\mathcal{T})-{<}r{>}\right)^2}$$ </h9>-->
+                         </div>
+                         <div class="column" style='position:fixed;top:20%;left:35%;width:100%' >
+                             <h8>$\small \displaystyle R=\int_V{\phi(P)dP}$<br></h8>
+                             <h8 class="fragment"><br>$\small \displaystyle \hat{R}$<br></h8>
+                             <h8 class="fragment"><br>$\small \displaystyle \bar{R}$<br></h8>
+                             <h8 class="fragment"><br>&#10145; incertitude</h8>
+
+                         </div>
+                         <div class="fragment" style='position:fixed;top:90%;left:0%;width:100%' >
+                             <h8>transport <b> analogue </b><h8>
+                         </div>
+
+                     </section>
+
+                     <!-- TRIPOLI-4 -->
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=20%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                     src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                             <h5> <i width="10%" class="em em-flag-cp"></i> TRIPOLI-4&reg</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <img  style='width="100%" ' src="/figures/brun.png" width="60%">
+
+                         <div style=";text-align:left;">
+                         <h8> physique des réacteurs</h8> <br>
+                         <h8> criticité</h8><br>
+                         <h8> radioprotection</h8>
+                         <div>
+                     </section>
+
+                     <!-- Monte carlo pour la radioprotection -->
+                     <section data-state="concrete_analog" data-state="concrete_et" style="text-align:left;">
+                         <div style="display:block;position: fixed; top: 0%;height=20%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                     src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> Monte Carlo pour la radioprotection</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div style="position:fixed; top:20%;left:10%;">
+                         <h8> problème de forte atténuation</h8>
+                         <img style='width:100%" ' src="/figures/concrete_geom.png" width="87%">
+                         <div class='fragment fragment-index="1"'>
+                             <h8> transport <b> analogue</b></h8>
+                             <img style='width:100%" ' src="/figures/concrete_analog.png" width="87%">
+                         </div>
+                         <div class='fragment fragment-index="2"'>
+                             <h8> transport avec méthode de <b>réduction de variance</b></h8>
+                             <img style='width:100%" ' src="/figures/concrete_et.png" width="87%">
+                         </div>
+                         <!--<div class="fragment" style="width:100%" id="ConcreteAnalog" > </div> -->
+                         <!--<div class="fragment" style="width:100%" id="ConcreteEt" > </div>-->
+                         <h8 class="fragment">figure de mérite (FOM): $\frac{1}{\sigma^2 T}$ </h8>
+                         </div>
+                     </section>
+                     <section data-state="concrete_analog" data-state="concrete_et" style="text-align:left;">
+                         <div style="display:block;position: fixed; top: 0%;height=20%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                     src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> Méthodes de réduction de variance</h5>
+                                 </div>
+                             </div>
+                         </div>
+
+                         <!--<div style="position:fixed; top:20%;left:10%;">-->
+
+                         <div class="row">
+                             <div class="column">
+                                 <h8>Modification des lois physiques </h8>
+                             </div>
+                             <div class="column">
+                                 <h8>Weight Windows</h8>
+                             </div>
+                         </div>
+                         <div class="row">
+                             <div class="column">
+                                 <br>
+                                 <h3>TRIPOLI-4&reg</h3>
+                             </div>
+                             <div class="column">
+                                 <br>
+                                 <img style 'position:relative;border:0;' src="/figures/mcnp.jpeg" width="30%"> <br>
+                                 <img style 'position:relative;border:0;' src="/figures/scale.jpg" width="30%"> <br>
+                                 <img style 'position:relative;border:0;' src="/figures/serpent.png" width="90%">
+                             </div>
+                         </div>
+                     </section>
+
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=20%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;' src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> Transformée exponentielle (ET)</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <!--Montrer oeuil qui regarde trajectoires-->
+                         <!--Montrer score-->
+                         <!--</p>-->
+                         <!--<p>-->
+                         <!--Alors comment on simule ces trajectoires?-->
+                         <!--</p>-->
+                         <div class="row">
+                             <div class="column">
+                                 <img style='position:fixed;top:15%;left:15%;width:100%" ' src="/figures/et_3.svg"    width="65%">
+                                 <img style='position:fixed;top:15%;left:15%;width:100%" ' src="/figures/et_5.svg"    width="65%" class='fragment fragment-index="2"' >
+                                 <img style='position:fixed;top:15%;left:15%;width:100%" ' src="/figures/et_6.svg"    width="65%" class='fragment fragment-index="3"' >
+                                 <img style='position:fixed;top:15%;left:15%;width:100%" ' src="/figures/et_7.svg"    width="65%" class='fragment fragment-index="4"' >
+                                 <img style='position:fixed;top:15%;left:15%;width:100%" ' src="/figures/et_9.svg"    width="65%" class='fragment fragment-index="5"' >
+                                 <img style='position:fixed;top:15%;left:15%;width:100%" ' src="/figures/et_9b.svg"    width="65%" class='fragment fragment-index="5"' >
+                                 <img style='position:fixed;top:15%;left:15%;width:100%" ' src="/figures/et_10.svg"    width="65%" class='fragment fragment-index="6"' >
+                             </div>
+                         </div>
+                     </section>
+
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=20%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> Adaptive Multilevel Splitting (AMS)</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <!--Montrer oeuil qui regarde trajectoires-->
+                         <!--Montrer score-->
+                         <!--</p>-->
+                         <!--<p>-->
+                         <!--Alors comment on simule ces trajectoires?-->
+                         <!--</p>-->
+                         <img style='position:fixed;top:25%;left:10%;width:100%" ' src="/figures/epjn.svg"    width="80%">
+                     </section>
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=20%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> Adaptive Multilevel Splitting (AMS)</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <!--Montrer oeuil qui regarde trajectoires-->
+                         <!--Montrer score-->
+                         <!--</p>-->
+                         <!--<p>-->
+                         <!--Alors comment on simule ces trajectoires?-->
+                         <!--</p>-->
+                         <div class="row">
+                             <div class="column">
+                                 <img style='position:fixed;top:15%;left:15%;width:100%" ' src="/figures/ams_10.svg"    width="65%">
+                                 <img style='position:fixed;top:15%;left:15%;width:100%" ' src="/figures/ams_9.svg"    width="65%" class='fragment fragment-index="1"' >
+                                 <img style='position:fixed;top:15%;left:15%;width:100%" ' src="/figures/ams_8.svg"    width="65%" class='fragment fragment-index="2"' >
+                                 <img style='position:fixed;top:15%;left:15%;width:100%" ' src="/figures/ams_7.svg"    width="65%" class='fragment fragment-index="3"' >
+                                 <img style='position:fixed;top:15%;left:15%;width:100%" ' src="/figures/ams_6.svg"    width="65%" class='fragment fragment-index="4"' >
+                                 <img style='position:fixed;top:15%;left:15%;width:100%" ' src="/figures/ams_5.svg"    width="65%" class='fragment fragment-index="5"' >
+                                 <img style='position:fixed;top:15%;left:15%;width:100%" ' src="/figures/ams_4.svg"    width="65%" class='fragment fragment-index="6"' >
+                                 <img style='position:fixed;top:15%;left:15%;width:100%" ' src="/figures/ams_3.svg"    width="65%" class='fragment fragment-index="7"' >
+                                 <img style='position:fixed;top:15%;left:15%;width:100%" ' src="/figures/ams_2.svg"    width="65%" class='fragment fragment-index="8"' >
+                                 <img style='position:fixed;top:15%;left:15%;width:100%" ' src="/figures/ams_1.svg"    width="65%" class='fragment fragment-index="9"' >
+                                 <img style='position:fixed;top:15%;left:15%;width:100%" ' src="/figures/ams_0.svg"    width="65%" class='fragment fragment-index="10"' >
+                             </div>
+                                 <!--<h9 class="fragment"> observable: $\varphi$ <br></h9>-->
+                                 <!--<h9 class="fragment"> $$ r=\int{\varphi(p)dp}$$ <br></h9>-->
+                                 <!--<h9 class="fragment"> $T$ ensemble de $N$ trajectoires <br></h9>-->
+                                 <!--<h9 class="fragment"> estimateur: $\hat{\varphi}$ <br></h9>-->
+                                 <!--<h9 class="fragment"> $$ {<}r{>}=\frac{1}{N}\sum_{\mathcal{T}\in T}{\hat{\varphi}(\mathcal{T})} $$ </h9>-->
+                                 <!--<h9 class="fragment"> $$\sigma^2=\frac{1}{N-1}\sum\limits_{\mathcal{T}\in T}{\left(\hat{\varphi}(\mathcal{T})-{<}r{>}\right)^2}$$ </h9>-->
+                         </div>
+                         <div class="fragment" style='position:fixed;top:50%;left:40%;width:100%' >
+                             <p ><font size="5.3">$\alpha=\left(\frac{2}{3}\right)^4$</font></p>
+                         </div>
+                     </section>
+
+                     <!--
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> Influence de la carte d'importance (FOM)</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div style="float:left;width:100%;position: fixed; top: 15%; left:0%">
+                             <div class="row">
+                                 <img style='width:100%" ' src="/figures/concrete_geom.png" width="87%">
+                             </div>
+                             <div style="float:left;width:100%;">
+                                 <div style="float:left;width:33%;text-align=left;">
+                                     <p> </p>
+                                 </div>
+                                 <div style="float:left;width:33%;text-align=left;">
+                                     <h6>AMS</h6>
+                                 </div>
+                                 <div style="float:left;width:33%;text-align=left;">
+                                     <h6>ET</h6>
+                                 </div>
+                             </div>
+                             <div style="float:left;width:100%;">
+                                 <div style="float:left;width:33%;text-align=left;">
+                                     <h8 style='text-align=left;'> <p>très grossière</p></h8>
+                                 </div>
+                                 <div style="float:left;width:33%;text-align=left;">
+                                     <h8 style='text-align=left;'> <p>$$9$$</p></h8>
+                                 </div>
+                                 <div style="float:left;width:33%;text-align=left;">
+                                     <h8 style='text-align=left;'> <p>$$38$$</p> </h8>
+                                 </div>
+                             </div>
+                             <div  style="float:left;width:100%;">
+                                 <div style="float:left;width:33%;text-align=left;">
+                                     <h8 style='text-align=left;'> <p> grossière</p></h8>
+                                 </div>
+                                 <div style="float:left;width:33%;text-align=left;">
+                                     <h8 style='text-align=left;'> <p>$$12$$</p></h8>
+                                 </div>
+                                 <div style="float:left;width:33%;text-align=left;">
+                                     <h8 style='text-align=left;'> <p>$$22$$</p></h8>
+                                 </div>
+                             </div>
+                             <div style="float:left;width:100%;">
+                                 <div style="float:left;width:33%;text-align=left;">
+                                     <h8 style='text-align=left;'> <p> fine</p></h8>
+                                 </div>
+                                 <div style="float:left;width:33%;text-align=left;">
+                                     <h8 style='text-align=left;'> <p>$$16$$</p></h8>
+                                 </div>
+                                 <div style="float:left;width:33%;text-align=left;">
+                                     <h8 style='text-align=left;'> <p>$$57561$$</p></h8>
+                                 </div>
+                             </div>
+                         </div>
+                     </section>
+                     -->
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> AMS vs ET</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div style="float:left;width:100%;position: fixed; top: 15%; left:0%">
+                             <div class="row">
+                             </div>
+                             <div style="float:left;width:100%;">
+                                 <div style="float:left;width:33%;text-align=left;">
+                                     <p> </p>
+                                 </div>
+                                 <div style="float:left;width:33%;text-align=left;">
+                                     <img src="/figures/ams_0.svg" width="50%" ><br>
+                                     <h6>AMS</h6>
+                                 </div>
+                                 <div style="float:left;width:33%;text-align=left;">
+                                     <img src="/figures/et_10.svg" width="50%" ><br>
+                                     <h6>ET</h6>
+                                 </div>
+                             </div>
+                             <div class="fragment" style="float:left;width:100%;">
+                                 <div style="float:left;width:33%;text-align=left;">
+                                     <h8 class="" style='text-align=left;'> <p> carte d'importance</p></h8>
+                                 </div>
+                                 <div style="float:left;width:33%;text-align=left;">
+                                     <h8 class="" style='text-align=left;'> <p>&#x26F3; robuste</p></h8>
+                                 </div>
+                                 <div style="float:left;width:33%;text-align=left;">
+                                     <h8 class="" style='text-align=left;'> <p>&#x26D0; sensible</p> </h8>
+                                 </div>
+                             </div>
+
+
+
+                             <div class="fragment" style="float:left;width:100%;">
+                                 <div class="" style="float:left;width:33%;text-align=left;">
+                                     <h8 style='text-align=left;'> <p> scores sur trajectoires analogues</p></h8>
+                                 </div>
+                                 <div class="" style="float:left;width:33%;text-align=left;">
+                                     <h8 style="color:green;"> &#x2714;</h8>
+                                 </div>
+                                 <div class="" style="float:left;width:33%;text-align=left;">
+                                     <h8 style="color:red;"> &#x2718;</h8>
+                                 </div>
+                             </div>
+                             <div class="fragment" style="float:left;width:100%;">
+                                 <div class="" style="float:left;width:33%;text-align=left;">
+                                     <h8 style='text-align=left;'> <p> schéma 0-variance</p></h8>
+                                 </div>
+                                 <div class="" style="float:left;width:33%;text-align=left;">
+                                     <h8 style="color:red;"> &#x2718;</h8>
+                                 </div>
+                                 <div class="" style="float:left;width:33%;text-align=left;">
+                                     <h8 style="color:green;"> &#x2714;</h8>
+                                 </div>
+                             </div>
+                         </div>
+                     </section>
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5>Hypothèses du schéma zéro variance</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div style='text-align:left;'>
+                             <h8 class="fragment"> échantillonnage préférentiel du <b>vol</b> <br></h8>
+                             <h8 class="fragment"> échantillonnage préférentiel de la <b>source</b> <br></h8>
+                             <h8 class="fragment"> échantillonnage préférentiel de la <b>collision</b> <br></h8>
+                             <h8 class="fragment"> trajectoire infinie<br></h8>
+                             <h8 class="fragment"> importance = <b>flux adjoint</b></h8>
+                         </div>
+                     </section>
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5>Hypothèses du schéma zéro variance</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div style='text-align:left;'>
+                             <h8> échantillonnage préférentiel du <b>vol</b> <br></h8>
+                             <h8> échantillonnage préférentiel de la <b>source</b> <br></h8>
+                             <h8 style="color:red;"> <strike> échantillonnage préférentiel de la <b>collision</b> <br></strike></h8>
+                             <h8 style="color:red;"> <strike> trajectoire infinie<br></strike></h8>
+                             <h8 style="color:red;"> <strike> importance = <b>flux adjoint</b></strike></h8>
+                         </div>
+                     </section>
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5>Hypothèses du schéma zéro variance</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div style='text-align:left;'>
+                             <h8 style="color:lightgrey;"> échantillonnage préférentiel du <b>vol</b> <br></h8>
+                             <h8 style="color:lightgrey;"> échantillonnage préférentiel de la <b>source</b> <br></h8>
+                             <h8 style="color:lightgrey;"> <strike> échantillonnage préférentiel de la <b>collision</b> <br></strike></h8>
+                             <h8 style="color:lightgrey;"> <strike> trajectoire infinie<br></strike></h8>
+                             <h8 style="color:black;"> importance = <b>flux adjoint</b></h8>
+                         </div>
+                     </section>
+                     <!-- Etat de l'art -->
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=20%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> Flux adjoint et importance</h5>
+                                 </div>
+                             </div>
+                         </div >
+                         <div class='' style='text-align:left;position:fixed;top:15%;'>
+                             <h8> équation de <b>Boltzmann adjointe</b></h8>
+                             <h8><font size="4">$$\displaystyle \left(-\mathbf{\Omega}\cdot{\nabla}+\Sigma\right)\phi^{\dagger}(\mathbf{r},E,\mathbf{\Omega})=
+
+                                 \int{ \Sigma_s(E, \mathbf{\Omega} \to E', \mathbf{\Omega}') \phi^{\dagger}(\mathbf{r},E',\mathbf{\Omega}')
+                                 dE'd^2\mathbf{\Omega}^\prime } +S^{\dagger}(\mathbf{r},E,\mathbf{\Omega})$$</font></h8>
+                         </div >
+                         <div class="row" style='position:fixed;top:40%'>
+                             <div class="column">
+                                 <!--<img style='position:fixed;top:30%;left:15%;width:100%" ' src="/figures/adj_0.svg"    width="30%">-->
+
+                                 <img style=src="/figures/mc_0.svg"    width="55%">
+                                 <img class="fragment"data-fragment-index="1"style='position:fixed;top:35%;left:5%;width:100%" ' src="/figures/adj_1.svg"    width="45%">
+                                 <img class="fragment"data-fragment-index="2"style='position:fixed;top:35%;left:5%;width:100%" ' src="/figures/adj_0.svg"    width="45%">
+                             </div>
+                             <div class="column">
+                                 <h8 class="fragment" data-fragment-index="1"> source $\displaystyle \delta_0$ en $P_0$</h8> <br>
+                                 <h8 class="fragment" data-fragment-index="1"> flux $\displaystyle\phi_0$</h8> <br> <br>
+                                 <h8 class="fragment" data-fragment-index="2"> $\displaystyle \phi^\dagger=\int_V{\phi_0(P)S^\dagger(P)dP} $</h8>
+                             </div>
+                         </div>
+
+
+                     </section>
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=20%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> Etat de l'art: méthodes déterministes</h5>
+                                 </div>
+                             </div>
+                         </div >
+                         <div class='' style='text-align:left;position:fixed;top:30%;'>
+                             <ul>
+                                 <li > <h8>INIPOND (TRIPOLI-4&reg)</h8> </li>
+                                     <h8> minimisation des chemins optiques à partir du détecteur</h8>
+                                 <li class="fragment">
+                                     <h8 ><b>C</b>onsistent <b>A</b>djoint <b>D</b>riven <b>I</b>mportance <b>S</b>ampling (CADIS)</h8>
+                                     <img style='position:fixed;border:0; left:30%;top:60%;background: #FFFFFF' src="figures/advantg.svg" width="40%">
+                                 </li>
+                             </ul>
+                         </div>
+                     </section>
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=20%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                     src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                             <h5>Plan </h5>
+                                 </div>
+                             </div>
+
+                         </div>
+                         <div style='text-align:left;'>
+                             <h8 style="color:lightgrey;" > 1. Contexte et justification de l'étude<br></h8>
+                             <h8> 2. Solveur déterministe<br></h8>
+                             <h8 style="color:lightgrey;" > 3. Score adjoint Monte Carlo<br></h8>
+                             <h8 style="color:lightgrey;" > 4. Accélération avec 3 stratégies<br></h8>
+                             <h8 style="color:lightgrey;" > 5. Smoothing<br></h8>
+                             <h8 style="color:lightgrey;" > 6. Conclusion </h8>
+                         </div>
+                     </section>
+                     <!-- Couplage déterministe-->
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=20%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> IDT</h5>
+                                     <h6> </h6>
+                                 </div>
+                             </div>
+                         </div>
+                         <div class="row" style="position:fixed;top:23%">
+                             <div class="column">
+                                 <img style='position:relative;border:0; background: #FFFFFF' src="figures/idtman.svg" width="70%">
+                             </div>
+                             <div class="column" style='text-align:left;'>
+                                 <ul>
+                                 <li> <h8>APOLLO3&reg (SERMA)</h8> </li>
+                                 <li> <h8>multi-groupe</h8> </li>
+                                 <li> <h8>nombreuses discrétisations spatiales </h8> </li>
+                                 <li> <h8>angles: ordonnées discrètes</h8> </li>
+                                 <li> <h8>nombreuses méthodes d'accélérations</h8> </li>
+                                 <ul>
+                             </div>
+                         </div>
+                     </section>
+
+                     <!-- Couplage déterministe-->
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=20%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> IDT et TRIPOLI-4&reg</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div class="row" >
+                             <img style='position:fixed;top:15%;left:5%;width:100%" ' src="/figures/couplage13.svg"    width="100%" class='' >
+                             <img style='position:fixed;top:15%;left:5%;width:100%" ' src="/figures/couplage12.svg"    width="100%" class='fragment' >
+                             <img style='position:fixed;top:15%;left:5%;width:100%" ' src="/figures/couplage11.svg"    width="100%" class='fragment' >
+                             <img style='position:fixed;top:15%;left:5%;width:100%" ' src="/figures/couplage10.svg"    width="100%" class='fragment' >
+                             <img style='position:fixed;top:15%;left:5%;width:100%" ' src="/figures/couplagefin.svg"   width="100%" class='fragment' >
+                         </div>
+                     </section>
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> IDT et TRIPOLI-4&reg: atténuation</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div style="float:left;width:100%;position: fixed; top: 15%; left:0%">
+                             <div>
+                                 <img style='position:relative;border:0; background: #FFFFFF' src="figures/concrete_geom.png" width="60%">
+                             </div>
+                             <img style='background: #FFFFFF' src="figures/concrete_idt.png" width="50%">
+                         </div>
+                     </section>
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> IDT et TRIPOLI-4&reg: atténuation</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div style="float:left;width:100%;position: fixed; top: 15%; left:0%">
+                             <div>
+                                 <img style='position:relative;border:0; background: #FFFFFF' src="figures/concrete_geom.png" width="60%">
+                             </div>
+                             <div>
+                                 <h8>
+                                 <ol type="1">
+                                     <li> <strike> INIPOND AUTO </strike></li>
+                                             <li> INIPOND MANUEL </li>
+                                             <li> IDT couplage (XS d'INIPOND)</li>
+                                             <li> IDT (XS anisotropes d'APOLLO3&reg)</li>
+                                             <ol>
+                                 </h8>
+                             </div>
+                         </div>
+                     </section>
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> IDT et TRIPOLI-4&reg: sections efficaces</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div style="float:left;width:100%;position: fixed; top: 15%; left:0%">
+                             <div class="row">
+                             </div>
+                             <div class="column">
+                                 <h8> INIPOND </h8>
+                                 <img style='position:relative;border:0; background: #FFFFFF' src="figures/xs_inipond.svg" width="100%">
+                             </div>
+                             <div class="column">
+                                 <h8> APOLLO3&reg</h8>
+                                 <img style='position:relative;border:0; background: #FFFFFF' src="figures/xs_apollo.svg" width="100%">
+                             </div>
+                         </div>
+                     </section>
+                     <!-- résultats -->
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> IDT et TRIPOLI-4&reg: atténuation (FOM)</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div style="float:left;width:100%;position: fixed; top: 15%; left:0%">
+                                 <img style='position:relative;border:0; background: #FFFFFF' src="figures/concrete_geom.png" width="60%">
+                         </div>
+                         <div style="float:left;width:100%;position: fixed; top: 15%; left:0%">
+                             <!--<img style='background: #FFFFFF' src="figures/concrete_table.png" width="80%">-->
+                             <img style="position:fixed; top:30%;left:10%;" src="/figures/concrete_fom_ams.svg" width="80%">
+                             <img class="fragment" style="position:fixed; top:30%;left:10%;" src="/figures/concrete_fom.svg" width="80%">
+                         </div>
+                     </section>
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> IDT et TRIPOLI-4&reg: conclusion</h5>
+                                 </div>
+                             </div>
+                         </div>
+
+                         <div style="text-align:left;">
+                         <h8 class="" ><h8 style="color:green;"> &#x2714;</h8> <h8>Automatisation de certaines tâches<br></h8></h8>
+                         <h8 class="" ><h8 style="color:green;"> &#x2714;</h8> <h8>Accélération significatives de l'ET<br></h8></h8>
+                         <h8 class="" ><h8 style="color:green;"> &#x2714;</h8> <h8>Robustesse de l'AMS<br></h8></h8>
+                         <div class='fragment'>
+                         <h8 class="" ><h8 style="color:red;"> &#x2718;</h8>  <h8>toujours besoin d'une expertise déterministe<br></h8></h8>
+                         <h8 class="" ><h8 style="color:red;"> &#x2718;</h8>  <h8>sections efficaces</h8></h8>
+                         </div>
+                         </div>
+
+                     </section>
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=20%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                     src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                             <h5>Plan </h5>
+                                 </div>
+                             </div>
+
+                         </div>
+                         <div style='text-align:left;'>
+                             <h8 style="color:lightgrey;" > 1. Contexte et justification de l'étude<br></h8>
+                             <h8 style="color:lightgrey;" > 2. Solveur déterministe<br></h8>
+                             <h8> 3. Score adjoint Monte Carlo<br></h8>
+                             <h8 style="color:lightgrey;" > 4. Accélération avec 3 stratégies<br></h8>
+                             <h8 style="color:lightgrey;" > 5. Smoothing<br></h8>
+                             <h8 style="color:lightgrey;" > 6. Conclusion </h8>
+                         </div>
+                     </section>
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> Score adjoint</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <img style='background: #FFFFFF; position:fixed;top:15%;left:0%;width:60%' src="figures/grapeshot_geom.svg"      width="50%">
+                         <img style='background: #FFFFFF; position:fixed;top:15%;left:0%;width:60%' src="figures/grapeshot_allblue.svg"   width="50%" class='fragment fragment-index="1"'>
+                         <img style='background: #FFFFFF; position:fixed;top:15%;left:0%;width:60%' src="figures/grapeshot_analog.svg"    width="50%" class='fragment fragment-index="2"'>
+
+
+                         <div class="fragment" style='text-align:left;position:fixed;top:30%;left:62%;width:100%' >
+                             <font size="6">
+                                 <h8 class="fragment">
+                                 $S(P) = \frac{\chi_0(P)}{\int_{\delta P}\chi_0(P)\, dP}\mathbb{1}_{\delta P}$
+                                 <br><br></h8>
+                                 <h8 class="fragment">
+                                 $R =\frac{\int_{\delta P}{\chi^\dagger(P)\chi_0(P)\, dP}}{\int_{\delta P}\chi_0(P)\, dP}$
+                                 <br></h8>
+                             </font >
+
+                             <h8 class="fragment">Estimateurs:<br></h8>
+
+                             <font size="4">
+                                 <h8 class="fragment">
+                                 $ \hat{\psi}_{D,{\delta P}}=
+                                 \frac{1}{N}\sum\limits_{\mathcal{T}\in \mathcal{S}}{ \sum\limits_{P_i\in \mathcal{T}}{c_i\, \mathbb{1}_{\delta P}\bigl(\mathbf{r}_i,E_i,\mathbf{\Omega}_i\bigr)} }$
+                                 <br></h8>
+                                 <h8 class="fragment">
+                                 $ \hat{\psi}_{F,{\delta P}}=
+                                 \frac{1}{N}\sum\limits_{\mathcal{T}\in \mathcal{S}}{ \sum\limits_{P_i\in \mathcal{T}}{\mathbb{1}_{\delta
+                                 P}\bigl(\mathbf{r}_i,E_i,\mathbf{\Omega}_i\bigr)} }                                 $
+                                 <br>
+                                 </h8>
+                             </font>
+                             <!--<font size="6">
+                                 <h8 class="fragment">
+                                 $ \hat{\chi^\dagger}=\frac{\hat{\psi}_{D,{\delta P}}}{\hat{\psi}_{F,{\delta P}}}$
+                                 </h8>
+                             </font>
+                             -->
+                         </div>
+                     </section>
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> Score adjoint: trajectoires analogues</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div class="row">
+                             <div style="float:left;width:30%">
+                                 <img style='position:relative;border:0; background: #FFFFFF' src="figures/sphere.svg" width="100%">
+                             </div>
+                             <div style="float:left;width:100%;position: fixed; top: 24%; left:15%">
+                                 <!--<img style='background: #FFFFFF' src="figures/grapeshot_analog.png"  width="70%">-->
+                                 <img class="fragment" src="figures/sphere2g.png"  width="60%">
+                             </div>
+                         </div>
+                     </section>
+
+                     <!-- Score adjoint choix de la méthode-->
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=20%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h6> Score adjoint: choix de la méthode</h6>
+                                 </div>
+                             </div>
+                         </div>
+                         <h6> AMS !</h6>
+                     </section>
+
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=20%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> Score adjoint: trajectoires AMS</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <!--Montrer oeuil qui regarde trajectoires-->
+                         <!--Montrer score-->
+                         <!--</p>-->
+                         <!--<p>-->
+                         <!--Alors comment on simule ces trajectoires?-->
+                         <!--</p>-->
+                         <div class="row">
+                             <div class="column">
+                                 <img style='position:fixed;top:15%;left:10%;width:100%" ' src="/figures/ams_adj.svg"    width="50%">
+                                 <img style='position:fixed;top:15%;left:10%;width:100%" ' src="/figures/ams_adj1.svg"   width="50%" class='fragment fragment-index="1"' >
+                                 <img style='position:fixed;top:15%;left:10%;width:100%" ' src="/figures/ams_adj2.svg"   width="50%" class='fragment fragment-index="2"' >
+                             </div>
+                                 <!--<h9 class="fragment"> observable: $\varphi$ <br></h9>-->
+                                 <!--<h9 class="fragment"> $$ r=\int{\varphi(p)dp}$$ <br></h9>-->
+                                 <!--<h9 class="fragment"> $T$ ensemble de $N$ trajectoires <br></h9>-->
+                                 <!--<h9 class="fragment"> estimateur: $\hat{\varphi}$ <br></h9>-->
+                                 <!--<h9 class="fragment"> $$ {<}r{>}=\frac{1}{N}\sum_{\mathcal{T}\in T}{\hat{\varphi}(\mathcal{T})} $$ </h9>-->
+                                 <!--<h9 class="fragment"> $$\sigma^2=\frac{1}{N-1}\sum\limits_{\mathcal{T}\in T}{\left(\hat{\varphi}(\mathcal{T})-{<}r{>}\right)^2}$$ </h9>-->
+                         </div>
+                         <div class="fragment" style='text-align:left;position:fixed;top:30%;left:62%;width:100%' >
+                             <font size="4">
+                                 <h8>
+                                 $
+                                 \hat{\psi}_{D,{\delta P}}(T)=
+                                 \sum\limits_{\mathcal{T}\in T} {
+                                 \color{red}{\alpha(\mathcal{T})}\,
+                                 \sum\limits_{P_i\in \mathcal{T}}{
+                                 c_i\, \mathbb{1}_{\delta P}\bigl(\mathbf{r}_i,E_i,\mathbf{\Omega}_i\bigr)
+                                 }
+                                 }
+                                 $
+                                 <br></h8>
+                                 <h8>
+                                 $
+                                 \hat{\psi}_{F,{\delta P}}(T)=
+                                 \sum\limits_{\mathcal{T}\in T} {
+                                 \color{red}{\alpha(\mathcal{T})}\,
+                                 \sum\limits_{P_i\in \mathcal{T}}{
+                                 \mathbb{1}_{\delta P}\bigl(\mathbf{r}_i,E_i,\mathbf{\Omega}_i\bigr)
+                                 }
+                                 }
+                                 $
+
+                                 </h8>
+                             </font>
+                         </div>
+                     </section>
+
+                     <!-- Comparaison concrete-->
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=20%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader" data-fragment-index="0">
+                                     <h5> Trajectoires AMS (vérification avec IDT)</h5>
+                                     <h6> </h6>
+                                 <div class="titleheader fragment" data-fragment-index="1">
+                                     <h5> Trajectoires AMS (IDT)</h5>
+                                     <h6> </h6>
+                                 </div>
+                                 <div class="titleheader fragment" data-fragment-index="2">
+                                     <h5> Trajectoires AMS (score adjoint)</h5>
+                                     <h6> </h6>
+                                 </div>
+                             </div>
+                         </div>
+                         <div class="row">
+                             <div style="float:left;width:30%">
+                                 <img style='position:relative;border:0; background: #FFFFFF' src="figures/wafe_geom.svg" width="100%">
+                                 <p>
+                                 <font size="3">
+                                     Source 1 dans chaque groupe <br>
+                                     sections condensées par TRIPOLI
+                                 </font>
+                                 </p>
+                             </div>
+                             <div style="float:left;width:70%;position: fixed; top: 15%; left:30%">
+                                 <img class="fragment" data-fragment-index="1" style='position:fixed;top:35%;left:35%;border:0; background: #FFFFFF' src="figures/adjoint_idt.svg" width="60%">
+                                 <img class="fragment"  data-fragment-index="2"style='position:fixed;top:35%;left:35%;border:0; background: #FFFFFF' src="figures/adjoint_t4.svg" width="60%">
+                                 <!--<img class="fragment" style='position:fixed;top:30%;left30%;border:0; background: #FFFFFF' src="figures/adjoint_ratio.png" width="80%">-->
+                             </div>
+                         </div>
+                     </section>
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=20%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                     src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                             <h5>Plan </h5>
+                                 </div>
+                             </div>
+
+                         </div>
+                         <div style='text-align:left;'>
+                             <h8 style="color:lightgrey;" > 1. Contexte et justification de l'étude<br></h8>
+                             <h8 style="color:lightgrey;" > 2. Solveur déterministe<br></h8>
+                             <h8 style="color:lightgrey;" > 3. Score adjoint Monte Carlo<br></h8>
+                             <h8> 4. Accélération avec 3 stratégies<br></h8>
+                             <h8 style="color:lightgrey;" > 5. Smoothing<br></h8>
+                             <h8 style="color:lightgrey;" > 6. Conclusion </h8>
+                         </div>
+                     </section>
+                     <!-- Comparaison concrete-->
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> Stratégie à 2 étapes</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div style="float:left;width:100%;position: fixed; top: 40%; left:0%">
+                         <img style="background: #FFFFFF" src="/figures/fixed_scheme.svg" >
+                         </div>
+                     </section>
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> Stratégie à 2 étapes: atténuation (score)</h5>
+                                 </div>
+                             </div>
+                         </div>
+<!--
+                         <div style="float:left;width:100%;position: fixed; top: 15%; left:0%">
+                             <div class="row">
+                                 <img style='width:100%" ' src="/figures/concrete_geom.png" width="87%">
+                             </div>
+                             <div class="row">
+                                 <div class="column" >
+                                     <p> IDT </p>
+                                     <img style='background: #FFFFFF' src="figures/concrete_idt.png" width="60%">
+                                 </div>
+                                 <div class="column" >
+                                     <p> score adjoint</p>
+                                     <img style='background: #FFFFFF' src="figures/concrete_score.png" width="100%">
+                                     </div>
+                             </div>
+                         </div>-->
+                         <div style="float:left;width:100%;position: fixed; top: 15%; left:0%">
+                             <div>
+                                 <img style='position:relative;border:0; background: #FFFFFF' src="figures/concrete_geom.png" width="60%">
+                             </div>
+                             <img style='background: #FFFFFF' src="figures/concrete_score.png" width="50%">
+                         </div>
+                     </section>
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> Stratégie à 2 étapes: atténuation (FOM)</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div style="float:left;width:100%;position: fixed; top: 15%; left:0%">
+                                 <img style='position:relative;border:0; background: #FFFFFF' src="figures/concrete_geom.png" width="60%">
+                         </div>
+                         <div style="float:left;width:100%;position: fixed; top: 15%; left:0%">
+                             <img style="position:fixed; top:30%;left:10%;" src="/figures/concrete_fom_adjoint_first.svg" width="80%" >
+                             <img class="fragment" style="position:fixed; top:30%;left:10%;" src="/figures/concrete_fom_adjoint.svg" width="80%" >
+                         </div>
+                     </section>
+
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> Stratégie à 2 étapes: Neutrons et gammas</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div style="float:left;width:100%;position: fixed; top: 15%; left:0%">
+                             <!--<img style='background: #FFFFFF' src="figures/concrete_table.png" width="80%">-->
+                             <img style="position:fixed; top:20%;left:30%;" src="/figures/ngamma.svg" width="40%">
+                             <img class="fragment" style="position:fixed; top:50%;left:3%;" src="/figures/ngamma_ad.svg" width="100%"<>
+                         </div>
+                     </section>
+
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> Stratégie à 2 étapes: Neutrons et gammas</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div style="float:left;width:100%;position: fixed; top: 15%; left:0%">
+                             <!--<img style='background: #FFFFFF' src="figures/concrete_table.png" width="80%">-->
+                             <img style="position:fixed; top:20%;left:30%;" src="/figures/ngamma.svg" width="40%">
+                             <img style="position:fixed; top:50%;left:20%;" src="/figures/ngamma_res.svg" width="60%">
+                         </div>
+                     </section>
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> Stratégie alternate</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div style="float:left;width:100%;position: fixed; top: 30%; left:0%">
+                         <img style="background: #FFFFFF" src="/figures/alternate_scheme.svg" >
+                         </div>
+                     </section>
+
+                     <!--
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> Stratégie alternate: atténuation</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div style="float:left;width:100%;position: fixed; top: 15%; left:0%">
+                                 <img style='position:relative;border:0; background: #FFFFFF' src="figures/concrete_geom.png" width="60%">
+                         </div>
+                         <div style="float:left;width:100%;position: fixed; top: 30%; left:4%">
+                             <img src="/figures/concrete_alternate.svg" width="80%">
+                     </section>
+                     -->
+
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> Stratégie alternate: Neutron & gammas</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div style="float:left;width:100%;position: fixed; top: 15%; left:0%">
+                                 <img style='position:relative;border:0; background: #FFFFFF' src="figures/ngamma.svg" width="20%">
+                         </div>
+                         <div style="float:left;width:100%;position: fixed; top: 30%; left:4%">
+                             <!--<img style='background: #FFFFFF' src="figures/concrete_table.png" width="80%">-->
+                             <img src="/figures/ngamma_alternate.svg" width="80%">
+                         </div>
+                     </section>
+
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> Stratégie bootstrap</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div class="fragment" style="float:left;width:100%;position: fixed; top: 25%; left:0%">
+                         <img style="background: #FFFFFF" src="/figures/bootstrap_scheme.svg" >
+                         </div>
+                         <div class="fragment" style="float:left;width:100%;position: fixed; top: 25%; left:0%">
+                         <img style="background: #FFFFFF" src="/figures/bootstrap_scheme_2.svg" >
+                         </div>
+                     </section>
+
+                     <!--
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> Stratégie bootstrap: atténuation</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div style="float:left;width:100%;position: fixed; top: 15%; left:0%">
+                                 <img style='position:relative;border:0; background: #FFFFFF' src="figures/concrete_geom.png" width="60%">
+                         </div>
+                         <div style="float:left;width:100%;position: fixed; top: 30%; left:4%">
+                             <img src="/figures/concrete_bootstrap.svg" width="80%">
+                     </section>
+                     -->
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> Stratégie bootstrap: Neutron & Photon</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div style="float:left;width:100%;position: fixed; top: 15%; left:0%">
+                                 <img style='position:relative;border:0; background: #FFFFFF' src="figures/ngamma.svg" width="20%">
+                         </div>
+                         <div style="float:left;width:100%;position: fixed; top: 30%; left:4%">
+                             <!--<img style='background: #FFFFFF' src="figures/concrete_table.png" width="80%">-->
+                             <img src="/figures/ngamma_bootstrap.svg" width="80%">
+                     </section>
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=20%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                     src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                             <h5>Plan </h5>
+                                 </div>
+                             </div>
+
+                         </div>
+                         <div style='text-align:left;'>
+                             <h8 style="color:lightgrey;" > 1. Contexte et justification de l'étude<br></h8>
+                             <h8 style="color:lightgrey;" > 2. Solveur déterministe<br></h8>
+                             <h8 style="color:lightgrey;" > 3. Score adjoint Monte Carlo<br></h8>
+                             <h8 style="color:lightgrey;" > 4. Accélération avec 3 stratégies<br></h8>
+                             <h8> 5. Smoothing<br></h8>
+                             <h8 style="color:lightgrey;" > 6. Conclusion </h8>
+                         </div>
+                     </section>
+
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="80%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> Smoothing?</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div style="float:left;width:100%;position: fixed; top: 15%; left:0%">
+                             <h8>Kernel Density Estimators<br></h8>
+                             <img style='background: #FFFFFF'  src="figures/kde.svg" width="50%">
+                             <!--<img style='background: #FFFFFF'  src="figures/kde_kernels.svg" width="50%">-->
+                         </div>
+                         <div>
+                             <font size="6">
+                                 <h8 class="fragment">
+                                 $ \hat{\chi^\dagger}=\frac{\hat{\pi_{\text{KDE}}}_{D,{\delta P}}}{\hat{\pi_{\text{KDE}}}_{F,{\delta P}}}$
+                                 </h8>
+                             </font>
+                         </div>
+                     </section>
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="80%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> KDE: atténuation</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div style="float:left;width:100%;position: fixed; top: 15%; left:0%">
+                             <div>
+                                 <img style='position:relative;border:0; background: #FFFFFF' src="figures/concrete_geom.png" width="60%">
+                             </div>
+                         </div>
+                         <div style="float:left;width:100%;position: fixed; top: 30%; left:4%">
+                             <!--<img style='background: #FFFFFF' src="figures/concrete_table.png" width="80%">-->
+                             <img src="/figures/concrete_kde.png" width="60%">
+                         </div>
+                     </section>
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="80%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> KDE: atténuation</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div style="float:left;width:100%;position: fixed; top: 15%; left:0%">
+                             <div>
+                                 <img style='position:relative;border:0; background: #FFFFFF' src="figures/concrete_geom.png" width="60%">
+                             </div>
+                         </div>
+                         <div style="float:left;width:100%;position: fixed; top: 30%; left:4%">
+                             <!--<img style='background: #FFFFFF' src="figures/concrete_table.png" width="80%">-->
+                             <img src="/figures/kde_concrete.svg" width="80%">
+                         </div>
+                     </section>
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;' src="/figures/logo_cea_2012_pleinetaille.png" width="80%">
+                                 </div>
+                                 <div class="titleheader" style="text-align:left">
+                                     <h5> Conclusions</h5>
+                                 </div>
+
+                                 <div class="" style="text-align:left;position:fixed;left:5%;top:20%;">
+                                     <h8> &#10145; implémentation de la méthode CADIS dans TRIPOLI-4&reg<br> </h8>
+                                     <h8> &#10145; définition d'un score adjoint avec l'AMS<br> </h8>
+                                     <h8> &#10145; définition de stratégies pour sonder l'état de convergence de la carte d'importance<br> </h8>
+                                     <h8> &#10145; tentatives de lissage de la carte<br> </h8>
+                                     <br>
+                                     <h8> <b>Publications:</b></h8>
+                                     <br>
+                                     <font size="3em">
+                                         <b>Scoring the adjoint flux in a direct Monte Carlo simulation</b>, Nowak et al, PHYSOR2018
+                                         </br>
+                                         <b>Accelerating Monte Carlo shielding calculations with a deterministic adjoint flux</b>, Nowak et al. soumis à Nuc. Sc. and  Eng.
+                                         </br>
+                                         <b>Evaluating importance maps for TRIPOLI-4 using deterministic or on-line methods</b>, Mancusi, Nowak et al. RPSD, 2018
+                                     </font>
+                                 </div>
+                             </div>
+                         </div>
+                     </section>
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;' src="/figures/logo_cea_2012_pleinetaille.png" width="80%">
+                                 </div>
+                                 <div class="titleheader" style="text-align:left">
+                                     <h5> </h5>
+                                 </div>
+                                 <div style="position:fixed;top:40%;left:40%;" >
+                                     <h4>Merci,</h4>
+                                     <br>
+                                     <h4>Questions?</h4>
+                                 </div>
+                             </div>
+                         </div>
+                     </section>
+
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="80%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> Bypass</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div style="float:left;width:100%;position: fixed; top: 15%; left:0%">
+                             <img style='position:relative;border:0; background: #FFFFFF' src="figures/bypass/bench_bypass.svg" width="30%">
+                             <div class="row">
+                                 <div class="column">
+                                     <img style='background: #FFFFFF' src="figures/bypass/bench_bypass_idt.svg" width="80%">
+                                 </div>
+                                 <div class="column">
+                                     <img style='background: #FFFFFF' src="figures/bypass/bench_bypass_fake.svg" width="80%">
+                                 </div>
+                             </div>
+                         </div>
+                     </section>
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> Bypass: bootstrap</h5>
+                                 </div>
+                             </div>
+                         </div>
+                             <div class="row">
+                                 <div class="column">
+                                     <!--<img style='background: #FFFFFF'  src="figures/byt_0.png" width="80%">-->
+                                     <img style='position:fixed;top:25%;left:5%;width:100%" ' src="/figures/byt_0.png"    width="45%">
+                                     <img style='position:fixed;top:25%;left:5%;width:100%" ' src="/figures/byt_1.png"    width="45%" class='fragment' data-fragment-index="2" >
+                                     <img style='position:fixed;top:25%;left:5%;width:100%" ' src="/figures/byt_2.png"    width="45%" class='fragment' data-fragment-index="4" >
+                                     <img style='position:fixed;top:25%;left:5%;width:100%" ' src="/figures/byt_3.png"    width="45%" class='fragment' data-fragment-index="6" >
+                                     <img style='position:fixed;top:25%;left:5%;width:100%" ' src="/figures/byt_4.png"    width="45%" class='fragment' data-fragment-index="8" >
+                                 </div>
+                                 <div class="column">
+                                     <img style='position:fixed;top:25%;left:60%;width:100%" ' src="/figures/byi_0.png"    width="40%" class='fragment' >
+                                     <img style='position:fixed;top:25%;left:60%;width:100%" ' src="/figures/byi_1.png"    width="40%" class='fragment' data-fragment-index="3" >
+                                     <img style='position:fixed;top:25%;left:60%;width:100%" ' src="/figures/byi_2.png"    width="40%" class='fragment' data-fragment-index="5" >
+                                     <img style='position:fixed;top:25%;left:60%;width:100%" ' src="/figures/byi_3.png"    width="40%" class='fragment' data-fragment-index="7" >
+                                     <img style='position:fixed;top:25%;left:60%;width:100%" ' src="/figures/byi_4.png"    width="40%" class='fragment' data-fragment-index="9" >
+                                 </div>
+                             </div>
+                     </section>
+
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> Bypass: alternate</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div style="float:left;width:100%;position: fixed; top: 15%; left:0%">
+                                     <img style='background: #FFFFFF'  src="figures/bypass/bypass_alternate.svg" width="80%">
+                         </div>
+                     </section>
+                     <section>
+                         <div style="display:block;position: fixed; top: 0%;height=15%; ">
+                             <div class="row">
+                                 <div class="logoheaderleft">
+                                     <img style 'position:relative;border:0;'
+                                      src="/figures/logo_cea_2012_pleinetaille.png" width="100%">
+                                 </div>
+                                 <div class="titleheader">
+                                     <h5> Bypass: bootstrap</h5>
+                                 </div>
+                             </div>
+                         </div>
+                         <div style="float:left;width:100%;position: fixed; top: 15%; left:0%">
+                                     <img style='background: #FFFFFF'  src="figures/bypass/bypass_bootstrap.svg" width="80%">
+                         </div>
+                     </section>
+
+
+                 </div>
+             </div>
+
+             <script src="lib/js/head.min.js"></script>
+            <script src="js/reveal.js"></script>
+            <script src="js/show.js"></script>
+            <script src="js/ams.js"></script>
+            <script src="js/sphere.js"></script>
+            <script src="js/concrete_analog.js"></script>
+            <script src="js/concrete_et.js"></script>
+
+            <script>
+// More info about config & dependencies:
+// - https://github.com/hakimel/reveal.js#configuration
+// - https://github.com/hakimel/reveal.js#dependencies
+Reveal.initialize({
+    transition: 'none', // none/fade/slide/convex/concave/zoom
+    dependencies: [
+    { src: 'plugin/markdown/marked.js' },
+    { src: 'plugin/markdown/markdown.js' },
+    { src: 'plugin/notes/notes.js', async: true },
+    { src: 'https://d3js.org/d3.v4.min.js' },
+    { src: 'node_modules/reveal.js-d3js/d3js.js' },
+    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
+    ]
+});
+Reveal.configure({ pdfMaxPagesPerSlide: 1 })
+Reveal.configure({ slideNumber: true });
+Reveal.configure({ slideNumber: 'c' });
+Reveal.addEventListener( 'particles', function() {
+    //show();
+} );
+
+Reveal.addEventListener( 'ams_bypass', function() {
+    //ams();
+} );
+Reveal.addEventListener( 'sphere_analog', function() {
+    //sphere();
+} );
+Reveal.addEventListener( 'concrete_analog', function() {
+    //concrete_analog();
+} );
+Reveal.addEventListener( 'concrete_et', function() {
+    //concrete_et();
+} );
+            </script>
+        </body>
+</html>
